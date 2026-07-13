@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 COPY backend/ .
+COPY router.php .
 
 RUN mkdir -p storage/framework/views storage/framework/cache/data storage/framework/sessions storage/logs bootstrap/cache && \
     chmod -R 777 storage bootstrap/cache && \
@@ -35,4 +36,4 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 EXPOSE 8080
 
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
+CMD ["php", "-S", "0.0.0.0:8080", "router.php"]
