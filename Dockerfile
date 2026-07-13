@@ -10,6 +10,8 @@ FROM php:8.3-cli
 
 WORKDIR /app
 
+ENV APP_KEY=base64:oo3uM/chSwDRgTLPd/PIrlJ/OJqthATFPMpq4t6vmW0=
+
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     libzip-dev \
