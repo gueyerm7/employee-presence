@@ -1,0 +1,17 @@
+.git
+.gitignore
+.vscode
+.idea
+node_modules
+backend/.env
+backend/vendor
+backend/storage/framework/cache/data/*
+backend/storage/framework/views/*
+backend/storage/framework/sessions/*
+backend/storage/logs/*
+backend/bootstrap/cache/*
+backend/public/assets
+backend/public/spa.html
+frontend/dist
+frontend/node_modules
+*.md

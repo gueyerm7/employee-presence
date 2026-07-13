@@ -1,0 +1,33 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node
+node_modules/
+
+# Frontend build
+frontend/dist/
+
+# Backend
+backend/.env
+backend/.env.backup
+backend/.env.production
+backend/vendor/
+backend/public/assets/
+backend/public/spa.html
+backend/storage/*.key
+backend/storage/framework/cache/data/*
+backend/storage/framework/views/*
+backend/storage/framework/sessions/*
+backend/storage/logs/*
+backend/bootstrap/cache/*
+backend/*.pem
+backend/*-key.pem
+backend/Caddyfile
+backend/storage/fonts/
