@@ -1,0 +1,1 @@
+<?php echo 'PHP_OK: ' . php_sapi_name();

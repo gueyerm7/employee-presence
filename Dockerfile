@@ -27,8 +27,8 @@ RUN mkdir -p storage/framework/views storage/framework/cache/data storage/framew
     chmod -R 777 storage bootstrap/cache && \
     composer install --no-dev --optimize-autoloader
 
-COPY --from=frontend /build/dist /app/public/assets
-COPY --from=frontend /build/dist/index.html /app/public/spa.html
+COPY --from=frontend /build/dist/. /app/public/
+RUN mv /app/public/index.html /app/public/spa.html
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
