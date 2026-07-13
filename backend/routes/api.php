@@ -7,18 +7,6 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BiometricController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/ping', function () {
-    return response()->json([
-        'php' => phpversion(),
-        'app_key' => env('APP_KEY') ? 'set' : 'missing',
-        'app_debug' => config('app.debug'),
-        'session_driver' => config('session.driver'),
-        'storage_path' => storage_path(),
-        'sessions_writable' => is_writable(storage_path('framework/sessions')),
-        'db_url' => env('DB_URL') ? 'set' : 'missing',
-    ]);
-});
-
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
