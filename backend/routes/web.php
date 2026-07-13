@@ -2,10 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/debug', function () {
-    return response('Laravel OK');
-});
-
 Route::get('/', function () {
     $path = public_path('spa.html');
     return response(file_get_contents($path), 200, ['Content-Type' => 'text/html']);
