@@ -17,13 +17,14 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/* \
     && docker-php-ext-install pdo_pgsql zip \
-    && a2enmod rewrite
+    && a2dismod mpm_event \
+    && a2enmod mpm_prefork rewrite
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 COPY backend/ .
 
-RUN mkdir -p storage/framework/views storage/framework/cache data storage/framework/sessions storage/logs bootstrap/cache && \
+RUN mkdir -p storage/framework/views storage/framework/cache/data storage/framework/sessions storage/logs bootstrap/cache && \
     chmod -R 777 storage bootstrap/cache && \
     composer install --no-dev --optimize-autoloader
 
