@@ -11,7 +11,6 @@ FROM php:8.3-cli
 WORKDIR /app
 
 ENV APP_KEY=base64:oo3uM/chSwDRgTLPd/PIrlJ/OJqthATFPMpq4t6vmW0=
-ENV DB_CONNECTION=pgsql
 ENV ADMIN_EMAIL=admin@employee-presence.com
 ENV ADMIN_PASSWORD=admin123
 
