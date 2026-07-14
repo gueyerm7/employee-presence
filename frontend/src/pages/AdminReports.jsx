@@ -57,7 +57,7 @@ export default function AdminReports() {
       </div>
 
       <Card>
-        <div className="flex gap-4 mb-6">
+        <div className="flex flex-wrap gap-4 mb-6">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -117,7 +117,7 @@ export default function AdminReports() {
 
       {data && !loading && (
         <Card>
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex flex-wrap items-center gap-3 mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Export</h2>
             {activeTab === 'monthly' ? (
               <>

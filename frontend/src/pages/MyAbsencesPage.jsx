@@ -67,7 +67,7 @@ export default function MyAbsencesPage() {
     <div className="space-y-6">
       {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Mes absences</h1>
           <p className="text-gray-500 mt-1">Gérez vos demandes de congés et absences.</p>
@@ -137,7 +137,7 @@ export default function MyAbsencesPage() {
                 ))}
               </select>
             </div>
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Date de début *</label>
                 <input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })}

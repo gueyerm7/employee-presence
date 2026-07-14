@@ -19,7 +19,7 @@ export default function Toast({ message, type = 'success', onClose, duration = 3
   };
 
   return (
-    <div className={`fixed top-4 right-4 z-50 transition-all duration-300 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}>
+    <div className={`fixed top-4 right-4 z-50 max-w-[calc(100vw-2rem)] transition-all duration-300 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}>
       <div className={`${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3`}>
         <span>{message}</span>
         <button onClick={() => { setVisible(false); setTimeout(onClose, 300); }} className="text-white/80 hover:text-white">&times;</button>

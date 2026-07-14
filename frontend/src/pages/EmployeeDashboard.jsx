@@ -454,22 +454,22 @@ export default function EmployeeDashboard() {
       )}
 
       <Card>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 min-w-0">
             {weekData
               ? `Semaine ${weekData.week_number} (${new Date(weekData.start_date + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} → ${new Date(weekData.end_date + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })})`
               : 'Vue hebdomadaire'}
           </h2>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={() => setWeekOffset((o) => o - 1)}>
-              ← Semaine précédente
+              ← Précédente
             </Button>
             <Button
               variant="outline"
               onClick={() => setWeekOffset((o) => o + 1)}
               disabled={weekOffset >= 0}
             >
-              Semaine suivante →
+              Suivante →
             </Button>
           </div>
         </div>

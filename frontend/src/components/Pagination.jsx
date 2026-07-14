@@ -13,7 +13,7 @@ export default function Pagination({ currentPage, lastPage, onPageChange }) {
   }
 
   return (
-    <div className="flex items-center justify-center gap-2 mt-6">
+    <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
       <Button
         variant="outline"
         onClick={() => onPageChange(currentPage - 1)}

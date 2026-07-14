@@ -63,7 +63,7 @@ export default function AdminAbsences() {
       </div>
 
       <Card>
-        <div className="flex gap-2 mb-6">
+        <div className="flex flex-wrap gap-2 mb-6">
           {filters.map(f => (
             <button key={f.value} onClick={() => setFilter(f.value)}
               className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
