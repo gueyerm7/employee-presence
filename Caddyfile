@@ -1,0 +1,19 @@
+{$APP_HOST}:443 {
+    tls /certs/server.pem /certs/server-key.pem
+
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+    }
+
+    reverse_proxy app:8080 {
+        header_up Host {host}
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-For {remote_host}
+    }
+}
+
+{$APP_HOST}:80 {
+    redir https://{$APP_HOST}{uri} permanent
+}
