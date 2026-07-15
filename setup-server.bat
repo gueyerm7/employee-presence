@@ -54,47 +54,34 @@ if "%IP%"=="" (
 echo [OK] IP reseau detectee : %IP%
 if not "%DOCKER_IP%"=="" echo [OK] IP Docker detectee : %DOCKER_IP%
 
-REM ----- Créer le dossier certs -----
-if not exist "%CD%\certs" mkdir "%CD%\certs"
-
-REM ----- Installer mkcert si nécessaire -----
+REM ----- Configurer DuckDNS -----
 echo.
-echo Verification de mkcert...
-where mkcert >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo mkcert non trouve. Telechargement...
-    powershell -Command "& {Invoke-WebRequest -Uri 'https://github.com/FiloSottile/mkcert/releases/latest/download/mkcert-v1.4.4-windows-amd64.exe' -OutFile '%TEMP%\mkcert.exe'}"
-    if not exist "%TEMP%\mkcert.exe" (
-        echo [ERREUR] Echec du telechargement de mkcert.
-        echo  Telecharge-le manuellement depuis https://github.com/FiloSottile/mkcert/releases
-        echo  Place mkcert.exe dans un dossier du PATH ou dans ce dossier.
-        pause
-        exit /b 1
-    )
-    move /Y "%TEMP%\mkcert.exe" "%CD%\mkcert.exe" >nul
-    echo [OK] mkcert telecharge
-)
-
-REM ----- Installer le CA local et generer le certificat -----
+echo ============================================
+echo  Configuration DuckDNS
+echo ============================================
 echo.
-echo Generation du certificat SSL pour %IP%...
-mkcert -install >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo [ERREUR] Impossible d'installer le CA mkcert.
+echo  DuckDNS est un service gratuit qui donne un nom de domaine
+echo  a votre serveur local, necessaire pour la reconnaissance
+echo  biométrique (WebAuthn).
+echo.
+echo  1. Va sur https://www.duckdns.org et connecte-toi
+echo  2. Cree un sous-domaine (ex: employee-presence)
+echo  3. Entre l'IP %IP% et sauvegarde
+echo  4. Copie le token affiche sur la page
+echo.
+set /p "DUCKDNS_DOMAIN=Entre ton domaine DuckDNS (ex: employee-presence.duckdns.org) : "
+if "%DUCKDNS_DOMAIN%"=="" (
+    echo [ERREUR] Domaine requis.
     pause
     exit /b 1
 )
-echo [OK] CA mkcert installe
-
-set "CERT_HOSTS=%IP% 127.0.0.1 localhost"
-if not "%DOCKER_IP%"=="" set "CERT_HOSTS=%CERT_HOSTS% %DOCKER_IP%"
-mkcert -cert-file "%CD%\certs\server.pem" -key-file "%CD%\certs\server-key.pem" %CERT_HOSTS% >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo [ERREUR] Impossible de generer le certificat.
+set /p "DUCKDNS_TOKEN=Entre ton token DuckDNS : "
+if "%DUCKDNS_TOKEN%"=="" (
+    echo [ERREUR] Token requis.
     pause
     exit /b 1
 )
-echo [OK] Certificat SSL genere pour : %CERT_HOSTS%
+echo [OK] Domaine DuckDNS configure : %DUCKDNS_DOMAIN%
 
 REM ----- Créer le fichier .env pour docker-compose -----
 echo.
@@ -103,7 +90,8 @@ echo APP_ENV=local > "%CD%\.env"
 echo APP_DEBUG=true >> "%CD%\.env"
 echo ADMIN_EMAIL=admin@employee-presence.com >> "%CD%\.env"
 echo ADMIN_PASSWORD=admin123 >> "%CD%\.env"
-echo WEBAUTHN_RP_ID=%IP% >> "%CD%\.env"
+echo DUCKDNS_DOMAIN=%DUCKDNS_DOMAIN% >> "%CD%\.env"
+echo DUCKDNS_TOKEN=%DUCKDNS_TOKEN% >> "%CD%\.env"
 
 REM ----- Détecter docker compose ou docker-compose -----
 echo.
@@ -173,20 +161,16 @@ echo ============================================
 echo  Configuration terminee !
 echo ============================================
 echo.
-echo  URL de l'application : https://%IP%
-echo  Aussi accessible via : https://localhost
+echo  URL de l'application : https://%DUCKDNS_DOMAIN%
 echo.
 echo  Email admin : admin@employee-presence.com
 echo  Mot de passe : admin123
 echo.
-echo  INSTRUCTIONS pour les autres postes et mobiles :
-echo    1. Copie les fichiers  setup-client.bat et mkcert.exe
-echo    2. Execute setup-client.bat en administrateur
-echo    3. Ouvre https://%IP% dans le navigateur
-echo  Pour les mobiles (iOS/Android) :
-echo    1. Envoyer le fichier rootCA.pem depuis ce PC
-echo    2. L'installer dans les reglages du telephone
-echo    3. Ouvrir https://%IP%
+echo  AUCUNE installation necessaire sur les autres postes !
+echo  Let's Encrypt est deja reconnu par tous les navigateurs.
+echo.
+echo  Partage simplement l'URL https://%DUCKDNS_DOMAIN%
+echo  a tous les employes, ca marche sur PC, Mac, Android et iOS.
 echo.
 echo  Pour arreter le serveur : %DC% down
 echo  Pour redemarrer      : %DC% start

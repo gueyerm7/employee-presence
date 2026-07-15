@@ -23,19 +23,22 @@ services:
       DB_PASSWORD: employee_secret
       APP_ENV: local
       APP_DEBUG: "true"
-      WEBAUTHN_RP_ID: ${WEBAUTHN_RP_ID:-}
     restart: unless-stopped
 
   caddy:
-    image: caddy:2-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.caddy
     depends_on:
       - app
     ports:
       - "80:80"
       - "443:443"
+    environment:
+      DUCKDNS_DOMAIN: ${DUCKDNS_DOMAIN}
+      DUCKDNS_TOKEN: ${DUCKDNS_TOKEN}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
-      - ./certs:/certs
       - caddy_data:/data
       - caddy_config:/config
     restart: unless-stopped
