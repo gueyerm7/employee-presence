@@ -23,6 +23,7 @@ services:
       DB_PASSWORD: employee_secret
       APP_ENV: local
       APP_DEBUG: "true"
+      WEBAUTHN_RP_ID: ${WEBAUTHN_RP_ID:-}
     restart: unless-stopped
 
   caddy:

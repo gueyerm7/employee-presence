@@ -103,6 +103,7 @@ echo APP_ENV=local > "%CD%\.env"
 echo APP_DEBUG=true >> "%CD%\.env"
 echo ADMIN_EMAIL=admin@employee-presence.com >> "%CD%\.env"
 echo ADMIN_PASSWORD=admin123 >> "%CD%\.env"
+echo WEBAUTHN_RP_ID=%IP% >> "%CD%\.env"
 
 REM ----- Détecter docker compose ou docker-compose -----
 echo.

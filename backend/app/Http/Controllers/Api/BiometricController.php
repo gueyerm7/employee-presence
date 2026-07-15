@@ -21,7 +21,7 @@ class BiometricController extends Controller
 
     protected function getRpId(Request $request): string
     {
-        return $request->getHost();
+        return env('WEBAUTHN_RP_ID') ?: $request->getHost();
     }
 
     public function registerBegin(Request $request)
