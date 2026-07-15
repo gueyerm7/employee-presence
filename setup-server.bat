@@ -97,18 +97,6 @@ echo APP_DEBUG=true >> "%CD%\.env"
 echo ADMIN_EMAIL=admin@employee-presence.com >> "%CD%\.env"
 echo ADMIN_PASSWORD=admin123 >> "%CD%\.env"
 
-REM ----- Lancer Docker Compose -----
-echo.
-echo Construction et demarrage des conteneurs...
-echo (La premiere fois peut prendre plusieurs minutes)
-echo.
-docker compose up -d --build
-if %ERRORLEVEL% NEQ 0 (
-    echo [ERREUR] Docker compose a echoue.
-    pause
-    exit /b 1
-)
-
 REM ----- Détecter docker compose ou docker-compose -----
 echo.
 echo Detection de docker-compose...
@@ -117,8 +105,8 @@ docker compose version >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
     docker-compose version >nul 2>&1
     if %ERRORLEVEL% NEQ 0 (
-        echo [ERREUR] Ni 'docker compose' ni 'docker-compose' n'est disponible.
-        echo  Active Docker Compose V2 dans Docker Desktop ^> Parametres ^> General
+        echo [ERREUR] Docker Compose n'est pas disponible.
+        echo  Active Docker Compose V2 dans Docker Desktop ^> General
         echo  OU installe docker-compose separement.
         pause
         exit /b 1
@@ -131,10 +119,28 @@ if %ERRORLEVEL% NEQ 0 (
 
 REM ----- Vérifier le fichier docker-compose.yml -----
 if not exist "%CD%\docker-compose.yml" (
-    echo [ERREUR] docker-compose.yml introuvable dans %CD%
-    echo  Verifie que le script est execute dans le dossier du projet.
+    echo [ERREUR] docker-compose.yml introuvable.
+    echo  Execute le script depuis le dossier du projet.
     pause
     exit /b 1
+)
+
+REM ----- Ouverture des ports pare-feu -----
+echo.
+echo Ouverture des ports pare-feu (administrateur requis)...
+netsh advfirewall firewall show rule name="Employee Presence HTTPS" >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    netsh advfirewall firewall add rule name="Employee Presence HTTPS" dir=in action=allow protocol=TCP localport=443
+    if %ERRORLEVEL% EQU 0 ( echo [OK] Port 443 ouvert ) else ( echo [AVERTISSEMENT] Impossible d'ouvrir le port 443 )
+) else (
+    echo [OK] Regle pare-feu deja presente
+)
+netsh advfirewall firewall show rule name="Employee Presence HTTP" >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    netsh advfirewall firewall add rule name="Employee Presence HTTP" dir=in action=allow protocol=TCP localport=80
+    if %ERRORLEVEL% EQU 0 ( echo [OK] Port 80 ouvert ) else ( echo [AVERTISSEMENT] Impossible d'ouvrir le port 80 )
+) else (
+    echo [OK] Regle pare-feu deja presente
 )
 
 REM ----- Lancer Docker Compose -----
