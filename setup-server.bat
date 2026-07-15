@@ -28,19 +28,14 @@ if %ERRORLEVEL% NEQ 0 (
 )
 echo [OK] Docker Desktop en cours d'execution
 
-REM ----- Détecter l'IP locale -----
+REM ----- Détecter l'IP locale (ignore Docker, Loopback) -----
 echo.
 echo Detection de l'adresse IP locale...
-for /f "tokens=2 delims=:" %%a in ('ipconfig ^| findstr /c:"Adresse IPv4"') do (
-    set "IP=%%a"
-    goto :IP_FOUND
+for /f %%a in ('powershell -NoProfile -Command "Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.InterfaceAlias -notlike '*vEthernet*' -and $_.IPAddress -notlike '127.*' -and $_.IPAddress -notlike '172.*' -and $_.IPAddress -notlike '10.*' } | Select-Object -First 1 -ExpandProperty IPAddress"') do set "IP=%%a"
+if "%IP%"=="" (
+    echo [AVERTISSEMENT] Detection automatique echouee, on prend la premiere IP non-Docker...
+    for /f %%a in ('powershell -NoProfile -Command "Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.InterfaceAlias -notlike '*vEthernet*' -and $_.IPAddress -notlike '127.*' } | Select-Object -First 1 -ExpandProperty IPAddress"') do set "IP=%%a"
 )
-for /f "tokens=2 delims=:" %%a in ('ipconfig ^| findstr /c:"IPv4 Address"') do (
-    set "IP=%%a"
-    goto :IP_FOUND
-)
-:IP_FOUND
-set "IP=%IP: =%"
 if "%IP%"=="" (
     echo [ERREUR] Impossible de detecter l'adresse IP locale.
     pause
