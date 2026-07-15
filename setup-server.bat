@@ -28,20 +28,31 @@ if %ERRORLEVEL% NEQ 0 (
 )
 echo [OK] Docker Desktop en cours d'execution
 
-REM ----- Détecter l'IP locale (ignore Docker, Loopback) -----
+REM ----- Détecter l'IP locale + IP Docker -----
 echo.
-echo Detection de l'adresse IP locale...
-for /f %%a in ('powershell -NoProfile -Command "Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.InterfaceAlias -notlike '*vEthernet*' -and $_.IPAddress -notlike '127.*' -and $_.IPAddress -notlike '172.*' -and $_.IPAddress -notlike '10.*' } | Select-Object -First 1 -ExpandProperty IPAddress"') do set "IP=%%a"
-if "%IP%"=="" (
-    echo [AVERTISSEMENT] Detection automatique echouee, on prend la premiere IP non-Docker...
-    for /f %%a in ('powershell -NoProfile -Command "Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.InterfaceAlias -notlike '*vEthernet*' -and $_.IPAddress -notlike '127.*' } | Select-Object -First 1 -ExpandProperty IPAddress"') do set "IP=%%a"
+echo Detection des adresses IP...
+set "IP="
+set "DOCKER_IP="
+for /f "tokens=2 delims=:" %%a in ('ipconfig ^| findstr /c:"Adresse IPv4" /c:"IPv4 Address"') do (
+    set "RAW_IP=%%a"
+    set "RAW_IP=!RAW_IP: =!"
+    set "FIRST=!RAW_IP:~0,3!"
+    if "!FIRST!"=="172" set "DOCKER_IP=!RAW_IP!"
+    if not "!FIRST!"=="172" if not "!FIRST!"=="169" if not "!FIRST!"=="127" (
+        if not defined IP set "IP=!RAW_IP!"
+    )
 )
 if "%IP%"=="" (
-    echo [ERREUR] Impossible de detecter l'adresse IP locale.
+    echo [ERREUR] Impossible de detecter l'IP locale automatiquement.
+    set /p "IP=Entrez l'adresse IP du serveur (ex: 192.168.1.42) : "
+)
+if "%IP%"=="" (
+    echo [ERREUR] Aucune IP saisie.
     pause
     exit /b 1
 )
-echo [OK] IP detectee : %IP%
+echo [OK] IP reseau detectee : %IP%
+if not "%DOCKER_IP%"=="" echo [OK] IP Docker detectee : %DOCKER_IP%
 
 REM ----- Créer le dossier certs -----
 if not exist "%CD%\certs" mkdir "%CD%\certs"
@@ -75,19 +86,20 @@ if %ERRORLEVEL% NEQ 0 (
 )
 echo [OK] CA mkcert installe
 
-mkcert -cert-file "%CD%\certs\server.pem" -key-file "%CD%\certs\server-key.pem" %IP% 127.0.0.1 localhost >nul 2>&1
+set "CERT_HOSTS=%IP% 127.0.0.1 localhost"
+if not "%DOCKER_IP%"=="" set "CERT_HOSTS=%CERT_HOSTS% %DOCKER_IP%"
+mkcert -cert-file "%CD%\certs\server.pem" -key-file "%CD%\certs\server-key.pem" %CERT_HOSTS% >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
     echo [ERREUR] Impossible de generer le certificat.
     pause
     exit /b 1
 )
-echo [OK] Certificat SSL genere pour %IP%
+echo [OK] Certificat SSL genere pour : %CERT_HOSTS%
 
 REM ----- Créer le fichier .env pour docker-compose -----
 echo.
 echo Configuration de l'environnement...
-echo APP_HOST=%IP% > "%CD%\.env"
-echo APP_ENV=local >> "%CD%\.env"
+echo APP_ENV=local > "%CD%\.env"
 echo APP_DEBUG=true >> "%CD%\.env"
 echo ADMIN_EMAIL=admin@employee-presence.com >> "%CD%\.env"
 echo ADMIN_PASSWORD=admin123 >> "%CD%\.env"
@@ -161,14 +173,19 @@ echo  Configuration terminee !
 echo ============================================
 echo.
 echo  URL de l'application : https://%IP%
+echo  Aussi accessible via : https://localhost
 echo.
 echo  Email admin : admin@employee-presence.com
 echo  Mot de passe : admin123
 echo.
-echo  INSTRUCTIONS pour les autres postes :
-echo    1. Copie le fichier  setup-client.bat  sur chaque PC
-echo    2. Execute-le en tant qu'administrateur
+echo  INSTRUCTIONS pour les autres postes et mobiles :
+echo    1. Copie les fichiers  setup-client.bat et mkcert.exe
+echo    2. Execute setup-client.bat en administrateur
 echo    3. Ouvre https://%IP% dans le navigateur
+echo  Pour les mobiles (iOS/Android) :
+echo    1. Envoyer le fichier rootCA.pem depuis ce PC
+echo    2. L'installer dans les reglages du telephone
+echo    3. Ouvrir https://%IP%
 echo.
 echo  Pour arreter le serveur : %DC% down
 echo  Pour redemarrer      : %DC% start
